@@ -2,6 +2,33 @@
 
 A simple multi-page Airbnb clone that uses a server-side Javascript to display the information from queries to web pages via SQL queries.
 
+# Usage
+
+LightBnB provides the following functionality:
+
+- User Management:
+Register a new user account
+Log in with an existing user account
+View user details
+
+- Property Management:
+Browse and search for available properties
+View property details including title, description, photos, price, and average rating
+Filter properties by owner, price range, and minimum rating
+Add a new property listing
+
+- Reservation Management:
+View reservations made by a specific user
+Book a property for a specific date range
+
+# Technologies Used
+
+- Node.js
+- Express.js
+- PostgreSQL
+- HTML/CSS
+- JavaScript
+
 ## Project Structure
 
 ```

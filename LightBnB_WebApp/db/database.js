@@ -62,7 +62,8 @@ const addUser = function (user) {
   `;
 
 return pool
-  .query(queryString, [user.name, user.email, user.password]) // Accepts a user object that will have a name, email, and password property
+// Accepts a user object that will have a name, email, and password property
+  .query(queryString, [user.name, user.email, user.password]) 
   .then((result) => {
     return result.rows[0];
   })
@@ -88,7 +89,8 @@ const getAllReservations = function (guest_id, limit = 10) {
   LIMIT $2;
 `, [guest_id, limit])
   .then((response) => {   
-    const reservations = response.rows; // Array of reservation objects
+    // Array of reservation objects
+    const reservations = response.rows; 
     return reservations;
   })
   .catch((err) => {
