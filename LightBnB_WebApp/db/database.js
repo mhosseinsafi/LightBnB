@@ -82,12 +82,12 @@ const getAllReservations = function (guest_id, limit = 10) {
   return pool.query(`
   SELECT reservations.*, properties.*, users.*
   FROM reservations
-  JOIN properties ON reservations.property_id = properties.id
+  JOIN properties ON reservations.property_id = properties.id    
   JOIN users ON reservations.guest_id = users.id
   WHERE reservations.guest_id = $1
   LIMIT $2;
 `, [guest_id, limit])
-  .then((response) => {
+  .then((response) => {   
     const reservations = response.rows; // Array of reservation objects
     return reservations;
   })
@@ -104,13 +104,48 @@ const getAllReservations = function (guest_id, limit = 10) {
  * @param {*} limit The number of results to return.
  * @return {Promise<[{}]>}  A promise to the properties.
  */
-const getAllProperties = (options, limit = 10) => {
+const getAllProperties = function (options, limit = 10) {
 
-    const limitedProperties = {};
-  for (let i = 1; i <= limit; i++) {
-    limitedProperties[i] = properties[i];
+  //An array to hold any parameters that may be available for the query
+  const queryParams = [];             
+
+  // All information that comes before the WHERE clause
+  let queryString = `      
+    SELECT properties.*, AVG(property_reviews.rating) AS average_rating
+    FROM properties
+    JOIN property_reviews ON properties.id = property_id
+  `;
+
+  // Filter by owner_id
+  if (options.owner_id) {
+    queryParams.push(options.owner_id);
+    queryString += `WHERE owner_id = $${queryParams.length}::text `;
   }
-  return Promise.resolve(limitedProperties);
+
+  // Filter by price range
+  if (options.minimum_price_per_night && options.maximum_price_per_night) {
+    queryParams.push(options.minimum_price_per_night * 100, options.maximum_price_per_night * 100);
+    queryString += `${queryParams.length === 1 ? 'WHERE' : 'AND'} cost_per_night BETWEEN $${queryParams.length - 1} AND $${queryParams.length} `;
+  }
+
+  // Filter by minimum_rating
+  if (options.minimum_rating) {
+    queryParams.push(options.minimum_rating);
+    queryString += `${queryParams.length === 1 ? 'WHERE' : 'AND'} property_reviews.rating >= $${queryParams.length} `;
+  }
+
+  //Any query that comes after the WHERE clause
+  queryParams.push(limit);
+  queryString += `
+    GROUP BY properties.id
+    ORDER BY cost_per_night
+    LIMIT $${queryParams.length}::integer;
+  `;
+
+  console.log(queryString, queryParams);
+
+  return pool.query(queryString, queryParams)
+    .then((res) => res.rows);
 };
 
 /**
