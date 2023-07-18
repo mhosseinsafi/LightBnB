@@ -79,7 +79,21 @@ return pool
  * @return {Promise<[{}]>} A promise to the reservations.
  */
 const getAllReservations = function (guest_id, limit = 10) {
-  return getAllProperties(null, 2);
+  return pool.query(`
+  SELECT reservations.*, properties.*, users.*
+  FROM reservations
+  JOIN properties ON reservations.property_id = properties.id
+  JOIN users ON reservations.guest_id = users.id
+  WHERE reservations.guest_id = $1
+  LIMIT $2;
+`, [guest_id, limit])
+  .then((response) => {
+    const reservations = response.rows; // Array of reservation objects
+    return reservations;
+  })
+  .catch((err) => {
+    console.log(err.message);
+  });
 };
 
 /// Properties
