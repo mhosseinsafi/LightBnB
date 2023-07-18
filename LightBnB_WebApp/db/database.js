@@ -217,10 +217,6 @@ const addProperty = function (property) {
     .then((res) => res.rows[0]);
 };
 
-  // const propertyId = Object.keys(properties).length + 1;
-  // property.id = propertyId;
-  // properties[propertyId] = property;
-  // return Promise.resolve(property);
 module.exports = {
   getUserWithEmail,
   getUserWithId,
